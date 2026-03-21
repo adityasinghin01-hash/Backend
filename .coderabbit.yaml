@@ -9,7 +9,7 @@ reviews:
     base_branches:
       - main
 
-  tone: "assertive"
+  profile: "assertive"
 
   path_filters:
     - "!node_modules/**"
