@@ -29,7 +29,7 @@ const verifyEmail = async (req, res, next) => {
 <div class="card">
   <div class="icon">❌</div>
   <h1>Link Expired</h1>
-  <p>This verification link has expired or is invalid. Please request a new one from the app.</p>
+  <p>This link has expired or is invalid. Please request a new one from the app.</p>
   <a href="myapp://verification-pending" class="btn">Back to App →</a>
 </div>
 </body>
@@ -68,7 +68,7 @@ const verifyEmail = async (req, res, next) => {
 <div class="card">
   <div class="icon">✅</div>
   <h1>Email Verified!</h1>
-  <p>Your email has been successfully verified. Tap the button below to return to the app.</p>
+  <p>Your email has been successfully verified. Tap below to return to the app.</p>
   <a href="myapp://dashboard" class="btn">Open App →</a>
 </div>
 <script>setTimeout(()=>{window.location.href='myapp://dashboard'},1500)</script>
