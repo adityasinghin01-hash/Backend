@@ -31,8 +31,11 @@ const config = {
     ACCESS_TOKEN_EXPIRES: process.env.ACCESS_TOKEN_EXPIRES || '15m',
     REFRESH_TOKEN_EXPIRES: process.env.REFRESH_TOKEN_EXPIRES || '7d',
 
-    // Email (Resend)
-    RESEND_API_KEY: process.env.RESEND_API_KEY,
+    // Email (Nodemailer / Brevo SMTP)
+    SMTP_HOST: process.env.SMTP_HOST || 'smtp-relay.brevo.com',
+    SMTP_PORT: parseInt(process.env.SMTP_PORT, 10) || 587,
+    SMTP_USER: process.env.SMTP_USER,
+    SMTP_PASS: process.env.SMTP_PASS,
 
     // Google OAuth
     GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID,
