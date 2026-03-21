@@ -20,6 +20,15 @@ const transporter = nodemailer.createTransport({
 
 // ── Verification Email ───────────────────────────────────
 const sendVerificationEmail = async (email, rawToken) => {
+    console.log('📧 Attempting to send verification email to:', email);
+    console.log('📧 SMTP Config:', {
+        host: config.SMTP_HOST,
+        port: config.SMTP_PORT,
+        user: config.SMTP_USER,
+        passLength: config.SMTP_PASS ? config.SMTP_PASS.length : 'NOT SET',
+        emailFrom: config.EMAIL_FROM,
+    });
+
     const verificationUrl = `${config.BASE_URL}/api/verify-email?token=${rawToken}`;
 
     const mailOptions = {
@@ -44,7 +53,18 @@ const sendVerificationEmail = async (email, rawToken) => {
         `,
     };
 
-    await transporter.sendMail(mailOptions);
+    try {
+        const info = await transporter.sendMail(mailOptions);
+        console.log('✅ Verification email sent successfully to:', email);
+        console.log('✅ Message ID:', info.messageId);
+        return info;
+    } catch (error) {
+        console.error('❌ Failed to send verification email to:', email);
+        console.error('❌ Error message:', error.message);
+        console.error('❌ Error code:', error.code);
+        console.error('❌ Full error:', error);
+        throw error; // Re-throw so callers can handle it
+    }
 };
 
 // ── Password Reset Email ─────────────────────────────────

@@ -59,10 +59,15 @@ const signup = async (req, res, next) => {
             await existingUser.save(); // Single save — fixes B-04
 
             // Send verification email async (after response)
-            setImmediate(() => {
-                sendVerificationEmail(email, rawToken).catch((err) =>
-                    console.error('Failed to send verification email:', err.message)
-                );
+            setImmediate(async () => {
+                try {
+                    console.log('📧 [Signup Re-send] Queuing verification email for:', email);
+                    await sendVerificationEmail(email, rawToken);
+                    console.log('✅ [Signup Re-send] Verification email sent for:', email);
+                } catch (err) {
+                    console.error('❌ [Signup Re-send] Email send failed:', err.message);
+                    console.error('❌ [Signup Re-send] Full error:', err);
+                }
             });
 
             return res.status(200).json({
@@ -93,10 +98,15 @@ const signup = async (req, res, next) => {
 
         await newUser.save(); // Single save — fixes B-04
 
-        setImmediate(() => {
-            sendVerificationEmail(email, rawToken).catch((err) =>
-                console.error('Failed to send verification email:', err.message)
-            );
+        setImmediate(async () => {
+            try {
+                console.log('📧 [Signup New] Queuing verification email for:', email);
+                await sendVerificationEmail(email, rawToken);
+                console.log('✅ [Signup New] Verification email sent for:', email);
+            } catch (err) {
+                console.error('❌ [Signup New] Email send failed:', err.message);
+                console.error('❌ [Signup New] Full error:', err);
+            }
         });
 
         return res.status(201).json({

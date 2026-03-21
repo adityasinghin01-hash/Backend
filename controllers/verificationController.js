@@ -93,7 +93,15 @@ const resendVerification = async (req, res, next) => {
         await user.save();
 
         // Send email (not async — we want to confirm it sent before responding)
-        await sendVerificationEmail(email, rawToken);
+        try {
+            console.log('📧 [Resend] Attempting to send verification email for:', email);
+            await sendVerificationEmail(email, rawToken);
+            console.log('✅ [Resend] Verification email sent for:', email);
+        } catch (err) {
+            console.error('❌ [Resend] Email send failed:', err.message);
+            console.error('❌ [Resend] Full error:', err);
+            // Even if email fails, we return a generic success to prevent enumeration
+        }
 
         return res.status(200).json({
             success: true,
