@@ -141,57 +141,93 @@ const checkVerificationStatus = async (req, res, next) => {
 // Used by verifyEmail to return styled HTML with optional deep link redirect.
 const buildHtmlPage = (title, message, success) => {
     const bgColor = success ? '#4CAF50' : '#f44336';
-    const redirect = success
-        ? `<script>setTimeout(function() { window.location.href = 'myapp://verify-success'; }, 1500);</script>`
+    const redirectUrl = success ? 'myapp://dashboard' : '';
+    const redirectScript = success
+        ? `<script>setTimeout(function() { window.location.href = '${redirectUrl}'; }, 2000);</script>`
         : '';
+    const buttonHtml = success 
+        ? `<a href="${redirectUrl}" class="button">Open App</a>` 
+        : `<a href="myapp://" class="button" style="background-color: #f44336;">Return to App</a>`;
 
     return `
     <!DOCTYPE html>
-    <html>
+    <html lang="en">
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>${title}</title>
-        ${redirect}
+        ${redirectScript}
         <style>
             body {
-                font-family: Arial, sans-serif;
+                font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif;
+                margin: 0;
+                padding: 0;
                 display: flex;
                 justify-content: center;
                 align-items: center;
                 min-height: 100vh;
-                margin: 0;
-                background-color: #f5f5f5;
+                background-color: #f8f9fa;
+                color: #333;
             }
             .container {
-                text-align: center;
-                padding: 40px;
                 background: white;
-                border-radius: 12px;
-                box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+                border-radius: 16px;
+                box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+                padding: 40px;
                 max-width: 400px;
+                width: 90%;
+                text-align: center;
+            }
+            .icon-wrapper {
+                width: 80px;
+                height: 80px;
+                border-radius: 50%;
+                background-color: ${success ? 'rgba(76, 175, 80, 0.1)' : 'rgba(244, 67, 54, 0.1)'};
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                margin: 0 auto 24px;
             }
             .icon {
-                font-size: 48px;
-                margin-bottom: 16px;
+                font-size: 40px;
             }
             h1 {
-                color: ${bgColor};
+                color: #1A1A2E;
                 font-size: 24px;
                 margin-bottom: 12px;
+                font-weight: 700;
             }
             p {
-                color: #555;
+                color: #666;
                 font-size: 16px;
-                line-height: 1.5;
+                line-height: 1.6;
+                margin-bottom: 32px;
+            }
+            .button {
+                display: inline-block;
+                background-color: #6C63FF;
+                color: white;
+                text-decoration: none;
+                padding: 14px 32px;
+                border-radius: 8px;
+                font-weight: 600;
+                font-size: 16px;
+                transition: transform 0.2s, box-shadow 0.2s;
+            }
+            .button:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 4px 12px rgba(108, 99, 255, 0.3);
             }
         </style>
     </head>
     <body>
         <div class="container">
-            <div class="icon">${success ? '✅' : '❌'}</div>
+            <div class="icon-wrapper">
+                <span class="icon">${success ? '✅' : '❌'}</span>
+            </div>
             <h1>${title}</h1>
             <p>${message}</p>
+            ${buttonHtml}
         </div>
     </body>
     </html>
