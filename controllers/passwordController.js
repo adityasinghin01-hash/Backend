@@ -144,9 +144,8 @@ const renderResetPage = async (req, res, next) => {
 
         return res.status(200).send(buildResetHtml(
             'Reset Your Password',
-            'Your reset link is valid. Use the token below to reset your password.',
-            true,
-            token
+            'Your reset link is valid. Return to the app to set your new password.',
+            true
         ));
     } catch (error) {
         next(error);
@@ -154,11 +153,8 @@ const renderResetPage = async (req, res, next) => {
 };
 
 // ── HTML Page Builder ────────────────────────────────────
-const buildResetHtml = (title, message, valid, token) => {
+const buildResetHtml = (title, message, valid) => {
     const bgColor = valid ? '#2196F3' : '#f44336';
-    const tokenSection = valid && token
-        ? `<p style="color: #888; font-size: 12px; margin-top: 20px; word-break: break-all;">Token: <code>${token}</code></p>`
-        : '';
 
     return `
     <!DOCTYPE html>
@@ -212,7 +208,7 @@ const buildResetHtml = (title, message, valid, token) => {
             <div class="icon">${valid ? '🔑' : '❌'}</div>
             <h1>${title}</h1>
             <p>${message}</p>
-            ${tokenSection}
+            ${valid ? '✅ Link valid. Return to the app.' : ''}
         </div>
     </body>
     </html>

@@ -14,9 +14,16 @@ const config = {
     MONGO_URI: process.env.MONGO_URI,
 
     // CORS — comma-separated string parsed into array
-    ALLOWED_ORIGINS: process.env.ALLOWED_ORIGINS
-        ? process.env.ALLOWED_ORIGINS.split(',').map(o => o.trim())
-        : [],
+    // Throws in production if not set — prevents accidental open-CORS deployments
+    ALLOWED_ORIGINS: (() => {
+        if (!process.env.ALLOWED_ORIGINS) {
+            if (process.env.NODE_ENV === 'production') {
+                throw new Error('ALLOWED_ORIGINS must be set in production');
+            }
+            return ['http://localhost:3000', 'http://localhost:5001'];
+        }
+        return process.env.ALLOWED_ORIGINS.split(',').map(o => o.trim());
+    })(),
 
     // JWT
     JWT_ACCESS_SECRET: process.env.JWT_ACCESS_SECRET,
@@ -24,12 +31,8 @@ const config = {
     ACCESS_TOKEN_EXPIRES: process.env.ACCESS_TOKEN_EXPIRES || '15m',
     REFRESH_TOKEN_EXPIRES: process.env.REFRESH_TOKEN_EXPIRES || '7d',
 
-    // Email (Nodemailer)
-    SMTP_HOST: process.env.SMTP_HOST || 'smtp.gmail.com',
-    SMTP_PORT: parseInt(process.env.SMTP_PORT, 10) || 587,
-    SMTP_USER: process.env.SMTP_USER,
-    SMTP_PASS: process.env.SMTP_PASS,
-    EMAIL_FROM: process.env.EMAIL_FROM,
+    // Email (Resend)
+    RESEND_API_KEY: process.env.RESEND_API_KEY,
 
     // Google OAuth
     GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID,
