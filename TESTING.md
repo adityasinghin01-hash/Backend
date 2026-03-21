@@ -36,3 +36,4 @@ node _test_full.js
 - Tests exit with code 1 on first failure
 - Test users are created with unique timestamps and cleaned up after
 - All test files are prefixed with `_test_` and gitignored
+
