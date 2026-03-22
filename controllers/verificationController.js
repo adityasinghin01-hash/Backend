@@ -71,7 +71,6 @@ const verifyEmail = async (req, res, next) => {
   <p>Your email has been successfully verified. Tap below to return to the app.</p>
   <a href="myapp://dashboard" class="btn">Open App →</a>
 </div>
-<script>setTimeout(()=>{window.location.href='myapp://dashboard'},1500)</script>
 </body>
 </html>`);
     } catch (error) {
