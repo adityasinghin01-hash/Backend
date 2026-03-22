@@ -162,7 +162,15 @@ const login = async (req, res, next) => {
             }
 
             await user.save();
-            return res.status(400).json({ message: 'Invalid credentials' });
+            return res.status(401).json({ message: 'Invalid credentials' });
+        }
+
+        // Block unverified users
+        if (!user.isVerified) {
+            return res.status(403).json({
+                message: 'Please verify your email before logging in.',
+                isVerified: false,
+            });
         }
 
         // Successful login — reset lockout, generate tokens
