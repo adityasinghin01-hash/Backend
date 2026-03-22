@@ -220,13 +220,8 @@ const googleLogin = async (req, res, next) => {
         let user = await User.findOne({ email });
 
         if (!user) {
-            // Create new Google user
-            user = new User({
-                email,
-                name,
-                picture,
-                provider: 'google',
-                isVerified: true,
+            return res.status(404).json({
+                message: 'No account found with this Google email. Please sign up first.',
             });
         } else {
             // Update existing user with Google info

@@ -25,7 +25,7 @@ const authLimiter = rateLimit({
 // Strict — applied to /forgot-password
 const strictLimiter = rateLimit({
     windowMs: 15 * 60 * 1000,
-    max: 5,                      // 5 attempts per IP per 15min
+    max: 20,
     standardHeaders: true,
     legacyHeaders: false,
     message: { message: 'Too many attempts, try again later.' },
