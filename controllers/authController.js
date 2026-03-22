@@ -38,7 +38,7 @@ const signup = async (req, res, next) => {
 
         // Case 1: User exists AND is verified → reject
         if (existingUser && existingUser.isVerified) {
-            return res.status(400).json({ message: 'An account with this email already exists' });
+            return res.status(409).json({ message: 'An account with this email already exists' });
         }
 
         // Case 2: User exists AND is NOT verified → re-signup (update token, send new email)
