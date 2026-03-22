@@ -20,7 +20,7 @@ const VERIFICATION_TOKEN_EXPIRY = 15 * 60 * 1000; // 15 minutes — consistent e
 // ARCHITECTURE_MAP §3.1
 const signup = async (req, res, next) => {
     try {
-        const email = req.body.email?.toLowerCase()?.trim();
+        const email = typeof req.body.email === 'string' ? req.body.email.toLowerCase().trim() : null;
         const password = req.body.password; // NO .trim() — fixes B-11
 
         // Validate email
@@ -124,7 +124,7 @@ const signup = async (req, res, next) => {
 // ARCHITECTURE_MAP §3.2
 const login = async (req, res, next) => {
     try {
-        const email = req.body.email?.toLowerCase()?.trim();
+        const email = typeof req.body.email === 'string' ? req.body.email.toLowerCase().trim() : null;
         const password = req.body.password; // NO .trim() — fixes B-11
         const rememberMe = req.body.rememberMe || false;
 
