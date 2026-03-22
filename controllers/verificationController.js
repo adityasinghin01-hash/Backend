@@ -10,7 +10,7 @@ const config = require('../config/config');
 const hashToken = require('../utils/hashToken');
 const { sendVerificationEmail } = require('../services/emailService');
 
-const VERIFICATION_TOKEN_EXPIRY = 15 * 60 * 1000; // 15 minutes — consistent everywhere (fixes B-07)
+const VERIFICATION_TOKEN_EXPIRY = 24 * 60 * 60 * 1000; // 24 hours
 
 // ── Verify Email ─────────────────────────────────────────
 // ARCHITECTURE_MAP §3.4
