@@ -63,6 +63,15 @@ const userSchema = new mongoose.Schema(
             type: Date,
         },
 
+        // ── OTP (for forgot-password flow) ───────────────────────
+        otpCode: {
+            type: String, // SHA-256 hash of the 6-digit code
+        },
+
+        otpExpiry: {
+            type: Date,
+        },
+
         // ── Security ──────────────────────────────────────────
         failedLoginAttempts: {
             type: Number,

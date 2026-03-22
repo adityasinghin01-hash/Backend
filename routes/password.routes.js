@@ -16,4 +16,10 @@ router.post('/reset-password', passwordController.resetPassword);
 // GET /api/reset-password — HTML page confirming token validity
 router.get('/reset-password', passwordController.renderResetPage);
 
+// POST /api/send-otp — strictLimiter (prevents OTP spam)
+router.post('/send-otp', strictLimiter, passwordController.sendOtp);
+
+// POST /api/verify-otp — strictLimiter
+router.post('/verify-otp', strictLimiter, passwordController.verifyOtp);
+
 module.exports = router;

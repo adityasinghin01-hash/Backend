@@ -9,7 +9,7 @@ const User = require('../models/User');
 const config = require('../config/config');
 const hashToken = require('../utils/hashToken');
 const validatePassword = require('../utils/passwordValidator');
-const { sendPasswordResetEmail } = require('../services/emailService');
+const { sendPasswordResetEmail, sendOtpEmail } = require('../services/emailService');
 
 const RESET_TOKEN_EXPIRY = 15 * 60 * 1000; // 15 minutes
 
@@ -160,4 +160,91 @@ const renderResetPage = async (req, res, next) => {
     }
 };
 
-module.exports = { forgotPassword, resetPassword, renderResetPage };
+// ── Send OTP ─────────────────────────────────────────────
+// POST /api/send-otp { email }
+const sendOtp = async (req, res, next) => {
+    try {
+        const email = req.body.email?.toLowerCase()?.trim();
+
+        if (!email || !validator.isEmail(email)) {
+            return res.status(400).json({ message: 'Please provide a valid email address' });
+        }
+
+        const user = await User.findOne({ email });
+
+        // Generic response — prevents enumeration
+        if (!user) {
+            return res.status(200).json({
+                success: true,
+                message: 'If an account exists, a reset code has been sent.',
+            });
+        }
+
+        // Generate 6-digit OTP
+        const rawOtp = Math.floor(100000 + Math.random() * 900000).toString();
+        user.otpCode = hashToken(rawOtp);
+        user.otpExpiry = Date.now() + 15 * 60 * 1000; // 15 minutes
+
+        await user.save();
+
+        try {
+            await sendOtpEmail(email, rawOtp);
+            console.log('✅ OTP email sent to:', email);
+        } catch (err) {
+            console.error('❌ OTP email failed:', err.message);
+        }
+
+        return res.status(200).json({
+            success: true,
+            message: 'If an account exists, a reset code has been sent.',
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
+// ── Verify OTP ────────────────────────────────────────────
+// POST /api/verify-otp { email, otp }
+// Returns a one-time resetToken the app uses to call POST /api/reset-password
+const verifyOtp = async (req, res, next) => {
+    try {
+        const email = req.body.email?.toLowerCase()?.trim();
+        const otp = req.body.otp?.trim();
+
+        if (!email || !otp) {
+            return res.status(400).json({ message: 'Email and OTP are required' });
+        }
+
+        const hashedOtp = hashToken(otp);
+
+        const user = await User.findOne({
+            email,
+            otpCode: hashedOtp,
+            otpExpiry: { $gt: Date.now() },
+        });
+
+        if (!user) {
+            return res.status(400).json({ message: 'Invalid or expired code. Please try again.' });
+        }
+
+        // OTP is valid — generate a short-lived reset token
+        const rawToken = crypto.randomBytes(32).toString('hex');
+        user.resetToken = hashToken(rawToken);
+        user.resetTokenExpiry = Date.now() + 15 * 60 * 1000;
+
+        // Clear OTP fields — single use only
+        user.otpCode = undefined;
+        user.otpExpiry = undefined;
+
+        await user.save();
+
+        return res.status(200).json({
+            success: true,
+            resetToken: rawToken,
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
+module.exports = { forgotPassword, resetPassword, renderResetPage, sendOtp, verifyOtp };

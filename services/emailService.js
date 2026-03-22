@@ -78,4 +78,38 @@ const sendPasswordResetEmail = async (email, token) => {
   await sendEmail(email, 'Action Required: Reset Your Password', html);
 };
 
-module.exports = { sendVerificationEmail, sendPasswordResetEmail };
+const sendOtpEmail = async (email, otpCode) => {
+  const html = `
+<!DOCTYPE html>
+<html>
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
+<body style="margin:0;padding:0;background:#f4f4f4;font-family:Arial,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#f4f4f4;padding:40px 0;">
+    <tr><td align="center">
+      <table width="600" cellpadding="0" cellspacing="0" style="background:#ffffff;border-radius:12px;overflow:hidden;box-shadow:0 4px 12px rgba(0,0,0,0.1);">
+        <tr><td style="background:linear-gradient(135deg,#667eea,#764ba2);padding:40px;text-align:center;">
+          <h1 style="color:#ffffff;margin:0;font-size:28px;">Password Reset Code</h1>
+          <p style="color:rgba(255,255,255,0.85);margin:10px 0 0;font-size:16px;">Use this code to reset your password</p>
+        </td></tr>
+        <tr><td style="padding:40px;text-align:center;">
+          <p style="color:#333;font-size:16px;line-height:1.6;">Hi there 👋</p>
+          <p style="color:#555;font-size:15px;line-height:1.6;margin:20px 0 30px;">Your password reset code is:</p>
+          <div style="background:#f4f4f4;border-radius:12px;padding:24px;margin:0 auto 30px;display:inline-block;">
+            <span style="font-size:40px;font-weight:900;letter-spacing:12px;color:#667eea;font-family:monospace;">${otpCode}</span>
+          </div>
+          <p style="color:#888;font-size:14px;">This code expires in <strong>15 minutes</strong>.</p>
+          <p style="color:#888;font-size:13px;margin-top:16px;">If you did not request a password reset, ignore this email.</p>
+        </td></tr>
+        <tr><td style="background:#f8f8f8;padding:20px;text-align:center;border-top:1px solid #eee;">
+          <p style="color:#aaa;font-size:12px;margin:0;">© 2025 Auth App. All rights reserved.</p>
+        </td></tr>
+      </table>
+    </td></tr>
+  </table>
+</body>
+</html>`;
+
+  await sendEmail(email, 'Your Password Reset Code', html);
+};
+
+module.exports = { sendVerificationEmail, sendPasswordResetEmail, sendOtpEmail };
