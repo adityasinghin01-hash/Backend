@@ -57,7 +57,7 @@ const sendVerificationEmail = async (email, token) => {
 };
 
 const sendPasswordResetEmail = async (email, token) => {
-  const url = `myapp://reset-password?token=${token}`;
+  const url = `${process.env.BASE_URL}/api/reset-password?token=${token}`;
   
   const html = `
     <div style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 40px 20px; text-align: center; color: #333;">

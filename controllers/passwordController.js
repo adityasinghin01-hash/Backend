@@ -111,108 +111,53 @@ const resetPassword = async (req, res, next) => {
 
 // ── Render Reset Password Page ───────────────────────────
 // GET /api/reset-password?token=<rawToken>
-// Returns an HTML page that confirms token validity.
-// The Flutter app sends users here via deep link — they see a web page.
+// Returns a beautiful HTML page with button that deep links into app.
 const renderResetPage = async (req, res, next) => {
     try {
         const { token } = req.query;
 
-        if (!token) {
-            return res.status(400).send(buildResetHtml(
-                'Invalid Link',
-                'No reset token provided.',
-                false,
-                null
-            ));
-        }
+        const errorHtml = `<!DOCTYPE html>
+<html>
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Link Expired</title>
+<style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:Arial,sans-serif;background:linear-gradient(135deg,#f093fb,#f5576c);min-height:100vh;display:flex;align-items:center;justify-content:center}.card{background:white;border-radius:20px;padding:50px 40px;text-align:center;max-width:420px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,0.2)}.icon{font-size:64px;margin-bottom:20px}h1{color:#333;font-size:26px;margin-bottom:12px}p{color:#666;font-size:15px;line-height:1.6;margin-bottom:30px}.btn{background:linear-gradient(135deg,#f093fb,#f5576c);color:white;text-decoration:none;padding:16px 40px;border-radius:10px;font-size:16px;font-weight:600;display:inline-block}</style>
+</head>
+<body>
+<div class="card">
+  <div class="icon">❌</div>
+  <h1>Link Expired</h1>
+  <p>This password reset link is invalid or has expired. Please request a new one from the app.</p>
+  <a href="myapp://forgot-password" class="btn">Back to App →</a>
+</div>
+</body>
+</html>`;
 
-        // Verify the token is valid before showing the form
+        if (!token) return res.status(400).send(errorHtml);
+
         const hashedToken = hashToken(token);
         const user = await User.findOne({
             resetToken: hashedToken,
             resetTokenExpiry: { $gt: Date.now() },
         });
 
-        if (!user) {
-            return res.status(400).send(buildResetHtml(
-                'Link Expired',
-                'This password reset link is invalid or has expired. Please request a new one.',
-                false,
-                null
-            ));
-        }
+        if (!user) return res.status(400).send(errorHtml);
 
-        return res.status(200).send(buildResetHtml(
-            'Reset Your Password',
-            'Your reset link is valid. Return to the app to set your new password.',
-            true
-        ));
+        return res.status(200).send(`<!DOCTYPE html>
+<html>
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Reset Password</title>
+<style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:Arial,sans-serif;background:linear-gradient(135deg,#667eea,#764ba2);min-height:100vh;display:flex;align-items:center;justify-content:center}.card{background:white;border-radius:20px;padding:50px 40px;text-align:center;max-width:420px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,0.2)}.icon{font-size:64px;margin-bottom:20px}h1{color:#333;font-size:26px;margin-bottom:12px}p{color:#666;font-size:15px;line-height:1.6;margin-bottom:30px}.btn{background:linear-gradient(135deg,#667eea,#764ba2);color:white;text-decoration:none;padding:16px 40px;border-radius:10px;font-size:16px;font-weight:600;display:inline-block}</style>
+</head>
+<body>
+<div class="card">
+  <div class="icon">🔑</div>
+  <h1>Reset Your Password</h1>
+  <p>Your reset link is valid. Tap the button below to open the app and set your new password.</p>
+  <a href="myapp://reset-password?token=${token}" class="btn">Reset Password →</a>
+</div>
+</body>
+</html>`);
     } catch (error) {
         next(error);
     }
-};
-
-// ── HTML Page Builder ────────────────────────────────────
-const buildResetHtml = (title, message, valid) => {
-    const bgColor = valid ? '#2196F3' : '#f44336';
-
-    return `
-    <!DOCTYPE html>
-    <html>
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>${title}</title>
-        <style>
-            body {
-                font-family: Arial, sans-serif;
-                display: flex;
-                justify-content: center;
-                align-items: center;
-                min-height: 100vh;
-                margin: 0;
-                background-color: #f5f5f5;
-            }
-            .container {
-                text-align: center;
-                padding: 40px;
-                background: white;
-                border-radius: 12px;
-                box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-                max-width: 400px;
-            }
-            .icon {
-                font-size: 48px;
-                margin-bottom: 16px;
-            }
-            h1 {
-                color: ${bgColor};
-                font-size: 24px;
-                margin-bottom: 12px;
-            }
-            p {
-                color: #555;
-                font-size: 16px;
-                line-height: 1.5;
-            }
-            code {
-                background: #f5f5f5;
-                padding: 2px 6px;
-                border-radius: 4px;
-                font-size: 11px;
-            }
-        </style>
-    </head>
-    <body>
-        <div class="container">
-            <div class="icon">${valid ? '🔑' : '❌'}</div>
-            <h1>${title}</h1>
-            <p>${message}</p>
-            ${valid ? '✅ Link valid. Return to the app.' : ''}
-        </div>
-    </body>
-    </html>
-    `;
 };
 
 module.exports = { forgotPassword, resetPassword, renderResetPage };
