@@ -6,18 +6,12 @@ const mongoose = require('mongoose');
 const app = require('./app');
 const config = require('./config/config');
 const connectDB = require('./config/db');
-const getLocalIp = require('./utils/getLocalIp');
 
 // ── Start Server ─────────────────────────────────────────────
 // CRITICAL: Listen BEFORE DB connect — Render needs an open port within ~15s.
 const server = app.listen(config.PORT, '0.0.0.0', () => {
-    const localIp = getLocalIp();
     console.log(`\n🚀 Server running in ${config.NODE_ENV} mode`);
     console.log(`   Local:   http://localhost:${config.PORT}`);
-
-    if (config.NODE_ENV === 'development') {
-        console.log(`   Network: http://${localIp}:${config.PORT}`);
-    }
 
     console.log('');
 

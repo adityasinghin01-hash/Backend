@@ -2,8 +2,6 @@
 // Verifies Google reCAPTCHA token on signup and login.
 // Dev bypass: when NODE_ENV=development AND token='dev-bypass', skips verification.
 // TECH_DECISIONS §2.1: reCAPTCHA on BOTH signup AND login (fixes B-13).
-
-const axios = require('axios');
 const config = require('../config/config');
 
 const verifyRecaptcha = async (req, res, next) => {
@@ -19,18 +17,11 @@ const verifyRecaptcha = async (req, res, next) => {
     }
 
     try {
-        const response = await axios.post(
-            'https://www.google.com/recaptcha/api/siteverify',
-            null,
-            {
-                params: {
-                    secret: config.RECAPTCHA_SECRET,
-                    response: recaptchaToken,
-                },
-            }
-        );
+        const url = `https://www.google.com/recaptcha/api/siteverify?secret=${config.RECAPTCHA_SECRET}&response=${recaptchaToken}`;
+        const response = await fetch(url, { method: 'POST' });
+        const data = await response.json();
 
-        if (!response.data.success) {
+        if (!data.success) {
             return res.status(400).json({ message: 'reCAPTCHA verification failed' });
         }
 
