@@ -51,13 +51,13 @@ const schemas = {
   forgotPassword: validate([emailField()]),
   verifyOtp: validate([emailField(), otpField()]),
   resetPassword: validate([
+    body('token').trim().notEmpty().withMessage('Reset token is required.'),
     passwordField('newPassword'),
+    body('confirmPassword').notEmpty().withMessage('Please confirm your password.'),
     body('newPassword').custom((value, { req }) => {
       if (value !== req.body.confirmPassword) throw new Error('Passwords do not match.');
       return true;
     }),
-    otpField(),
-    emailField(),
   ]),
   refreshToken: validate([
     body('refreshToken').trim().notEmpty().withMessage('Refresh token is required.'),
