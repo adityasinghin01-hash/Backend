@@ -55,7 +55,7 @@ app.use('/api', globalLimiter);
 app.use('/api', require('./routes/health.routes'));
 app.use('/api', require('./routes/auth.routes'));
 app.use('/api', require('./routes/verification.routes'));
-app.use('/api', require('./routes/password.routes'));
+app.use('/api/password', require('./routes/password.routes'));
 app.use('/api', require('./routes/user.routes'));
 
 // ── 8. Global Error Handler (MUST be last) ───────────────
