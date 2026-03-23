@@ -1,115 +1,141 @@
-const sendEmail = async (to, subject, html) => {
-  const response = await fetch('https://api.brevo.com/v3/smtp/email', {
+// services/emailService.js
+
+const { BREVO_API_KEY, BASE_URL } = require('../config/config');
+
+const layout = (bodyHtml) => `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AuthApp</title>
+</head>
+<body style="margin:0;padding:0;background:#f5f5f5;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#f5f5f5;padding:40px 0;">
+    <tr>
+      <td align="center">
+        <table width="520" cellpadding="0" cellspacing="0"
+               style="background:#ffffff;border-radius:8px;overflow:hidden;border:1px solid #e8e8e8;">
+          <tr>
+            <td style="background:#111111;padding:28px 40px;">
+              <span style="color:#ffffff;font-size:20px;font-weight:700;letter-spacing:1px;">AuthApp</span>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:40px;">
+              ${bodyHtml}
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:24px 40px;border-top:1px solid #f0f0f0;">
+              <p style="margin:0;font-size:12px;color:#aaaaaa;line-height:1.6;">
+                This email was sent by AuthApp. If you didn't request this, you can safely ignore it.<br/>Do not share this email or its contents with anyone.
+              </p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
+`;
+
+const button = (href, label) => `
+  <table cellpadding="0" cellspacing="0" style="margin:32px 0 0;">
+    <tr>
+      <td style="background:#111111;border-radius:6px;">
+        <a href="${href}"
+           style="display:inline-block;padding:14px 32px;color:#ffffff;font-size:15px;
+                  font-weight:600;text-decoration:none;letter-spacing:0.3px;">
+          ${label}
+        </a>
+      </td>
+    </tr>
+  </table>
+`;
+
+const otpBox = (otp) => `
+  <div style="margin:32px 0;text-align:center;">
+    <div style="display:inline-block;background:#f7f7f7;border:1px solid #e0e0e0;
+                border-radius:8px;padding:20px 40px;">
+      <span style="font-size:36px;font-weight:700;letter-spacing:12px;color:#111111;
+                   font-family:'Courier New',Courier,monospace;">
+        ${otp}
+      </span>
+    </div>
+    <p style="margin:12px 0 0;font-size:13px;color:#999999;">
+      This code expires in <strong style="color:#111111;">15 minutes</strong>
+    </p>
+  </div>
+`;
+
+const divider = `<hr style="border:none;border-top:1px solid #f0f0f0;margin:28px 0;" />`;
+
+async function sendEmail({ to, subject, html }) {
+  const res = await fetch('https://api.brevo.com/v3/smtp/email', {
     method: 'POST',
     headers: {
-      'accept': 'application/json',
-      'api-key': process.env.BREVO_API_KEY,
-      'content-type': 'application/json',
+      'api-key': BREVO_API_KEY,
+      'Content-Type': 'application/json',
     },
     body: JSON.stringify({
-      sender: { name: 'Auth App', email: 'aditya.singh.in01@gmail.com' },
+      sender: { name: 'AuthApp', email: 'noreply@authapp.dev' },
       to: [{ email: to }],
       subject,
       htmlContent: html,
     }),
   });
-  if (!response.ok) {
-    const err = await response.json();
-    console.error('❌ Brevo error:', err);
-    throw new Error(err.message || 'Email send failed');
+
+  if (!res.ok) {
+    const err = await res.text();
+    throw new Error(`Brevo send failed [${res.status}]: ${err}`);
   }
-  console.log('✅ Email sent to:', to);
-};
+}
 
-const sendVerificationEmail = async (email, token) => {
-  const verificationUrl = `${process.env.BASE_URL}/api/verify-email?token=${token}`;
-  
-  const verificationEmailHtml = `
-<!DOCTYPE html>
-<html>
-<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
-<body style="margin:0;padding:0;background:#f4f4f4;font-family:Arial,sans-serif;">
-  <table width="100%" cellpadding="0" cellspacing="0" style="background:#f4f4f4;padding:40px 0;">
-    <tr><td align="center">
-      <table width="600" cellpadding="0" cellspacing="0" style="background:#ffffff;border-radius:12px;overflow:hidden;box-shadow:0 4px 12px rgba(0,0,0,0.1);">
-        <tr><td style="background:linear-gradient(135deg,#667eea,#764ba2);padding:40px;text-align:center;">
-          <h1 style="color:#ffffff;margin:0;font-size:28px;">Verify Your Email</h1>
-          <p style="color:rgba(255,255,255,0.85);margin:10px 0 0;font-size:16px;">One step away from getting started</p>
-        </td></tr>
-        <tr><td style="padding:40px;">
-          <p style="color:#333;font-size:16px;line-height:1.6;">Hi there 👋</p>
-          <p style="color:#555;font-size:15px;line-height:1.6;margin:20px 0 30px;">Thanks for signing up! Please verify your email address. This link expires in <strong>15 minutes</strong>.</p>
-          <div style="text-align:center;margin:30px 0;">
-            <a href="${verificationUrl}" style="background:linear-gradient(135deg,#667eea,#764ba2);color:#ffffff;text-decoration:none;padding:16px 40px;border-radius:8px;font-size:16px;font-weight:600;display:inline-block;">✉️ Verify My Email</a>
-          </div>
-          <p style="color:#888;font-size:13px;text-align:center;">If you didn't create an account, ignore this email.</p>
-        </td></tr>
-        <tr><td style="background:#f8f8f8;padding:20px;text-align:center;border-top:1px solid #eee;">
-          <p style="color:#aaa;font-size:12px;margin:0;">© 2025 Auth App. All rights reserved.</p>
-        </td></tr>
-      </table>
-    </td></tr>
-  </table>
-</body>
-</html>`;
+async function sendVerificationEmail(email, token) {
+  const verifyUrl = `${BASE_URL}/api/verification/verify-email?token=${token}`;
+  const html = layout(`
+    <h2 style="margin:0 0 8px;font-size:22px;font-weight:700;color:#111111;">Verify your email</h2>
+    <p style="margin:0;font-size:15px;color:#555555;line-height:1.7;">
+      Thanks for signing up. Click the button below to confirm your email address and activate your account.
+    </p>
+    ${button(verifyUrl, 'Verify Email →')}
+    ${divider}
+    <p style="margin:0;font-size:13px;color:#999999;line-height:1.6;">
+      This link expires in <strong style="color:#111111;">24 hours</strong>. If you didn't create an account, no action is needed.
+    </p>
+  `);
+  await sendEmail({ to: email, subject: 'Verify your AuthApp account', html });
+}
 
-  await sendEmail(email, 'Action Required: Verify Your TestApp Account', verificationEmailHtml);
-};
+async function sendOtpEmail(email, otp) {
+  const html = layout(`
+    <h2 style="margin:0 0 8px;font-size:22px;font-weight:700;color:#111111;">Password reset code</h2>
+    <p style="margin:0;font-size:15px;color:#555555;line-height:1.7;">
+      Use the code below to reset your password. Enter it on the verification screen.
+    </p>
+    ${otpBox(otp)}
+    ${divider}
+    <p style="margin:0;font-size:13px;color:#999999;line-height:1.6;">
+      If you didn't request a password reset, you can safely ignore this email. Your password will not be changed.
+    </p>
+  `);
+  await sendEmail({ to: email, subject: 'Your AuthApp reset code', html });
+}
 
-const sendPasswordResetEmail = async (email, token) => {
-  const url = `${process.env.BASE_URL}/api/reset-password?token=${token}`;
-  
-  const html = `
-    <div style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 40px 20px; text-align: center; color: #333;">
-      <h2 style="color: #1A1A2E; margin-bottom: 24px; font-size: 28px;">Reset Your Password</h2>
-      <p style="font-size: 16px; line-height: 1.5; margin-bottom: 32px; color: #555;">
-        We received a request to reset your password. Click the button below to choose a new one.
-      </p>
-      <a href="${url}" style="display: inline-block; background-color: #6C63FF; color: white; padding: 14px 32px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 16px; margin-bottom: 32px;">
-        Reset Password
-      </a>
-      <p style="font-size: 14px; color: #888; margin-top: 20px;">
-        This link will expire in 15 minutes.<br>
-        If you did not request a password reset, you can safely ignore this email.
-      </p>
-    </div>
-  `;
+async function sendPasswordResetEmail(email) {
+  const html = layout(`
+    <h2 style="margin:0 0 8px;font-size:22px;font-weight:700;color:#111111;">Password changed</h2>
+    <p style="margin:0;font-size:15px;color:#555555;line-height:1.7;">
+      Your AuthApp password was successfully updated. You can now log in with your new password.
+    </p>
+    ${divider}
+    <p style="margin:0;font-size:13px;color:#999999;line-height:1.6;">
+      If you didn't make this change, please contact support immediately or reset your password again to secure your account.
+    </p>
+  `);
+  await sendEmail({ to: email, subject: 'Your password has been changed', html });
+}
 
-  await sendEmail(email, 'Action Required: Reset Your Password', html);
-};
-
-const sendOtpEmail = async (email, otpCode) => {
-  const html = `
-<!DOCTYPE html>
-<html>
-<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
-<body style="margin:0;padding:0;background:#f4f4f4;font-family:Arial,sans-serif;">
-  <table width="100%" cellpadding="0" cellspacing="0" style="background:#f4f4f4;padding:40px 0;">
-    <tr><td align="center">
-      <table width="600" cellpadding="0" cellspacing="0" style="background:#ffffff;border-radius:12px;overflow:hidden;box-shadow:0 4px 12px rgba(0,0,0,0.1);">
-        <tr><td style="background:linear-gradient(135deg,#667eea,#764ba2);padding:40px;text-align:center;">
-          <h1 style="color:#ffffff;margin:0;font-size:28px;">Password Reset Code</h1>
-          <p style="color:rgba(255,255,255,0.85);margin:10px 0 0;font-size:16px;">Use this code to reset your password</p>
-        </td></tr>
-        <tr><td style="padding:40px;text-align:center;">
-          <p style="color:#333;font-size:16px;line-height:1.6;">Hi there 👋</p>
-          <p style="color:#555;font-size:15px;line-height:1.6;margin:20px 0 30px;">Your password reset code is:</p>
-          <div style="background:#f4f4f4;border-radius:12px;padding:24px;margin:0 auto 30px;display:inline-block;">
-            <span style="font-size:40px;font-weight:900;letter-spacing:12px;color:#667eea;font-family:monospace;">${otpCode}</span>
-          </div>
-          <p style="color:#888;font-size:14px;">This code expires in <strong>15 minutes</strong>.</p>
-          <p style="color:#888;font-size:13px;margin-top:16px;">If you did not request a password reset, ignore this email.</p>
-        </td></tr>
-        <tr><td style="background:#f8f8f8;padding:20px;text-align:center;border-top:1px solid #eee;">
-          <p style="color:#aaa;font-size:12px;margin:0;">© 2025 Auth App. All rights reserved.</p>
-        </td></tr>
-      </table>
-    </td></tr>
-  </table>
-</body>
-</html>`;
-
-  await sendEmail(email, 'Your Password Reset Code', html);
-};
-
-module.exports = { sendVerificationEmail, sendPasswordResetEmail, sendOtpEmail };
+module.exports = { sendVerificationEmail, sendOtpEmail, sendPasswordResetEmail };
