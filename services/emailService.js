@@ -94,7 +94,7 @@ async function sendEmail({ to, subject, html }) {
 }
 
 async function sendVerificationEmail(email, token) {
-  const verifyUrl = `${BASE_URL}/api/verification/verify-email?token=${token}`;
+  const verifyUrl = `${BASE_URL}/api/verify-email?token=${token}`;
   const html = layout(`
     <h2 style="margin:0 0 8px;font-size:22px;font-weight:700;color:#111111;">Verify your email</h2>
     <p style="margin:0;font-size:15px;color:#555555;line-height:1.7;">
