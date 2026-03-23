@@ -1,34 +1,60 @@
 // middleware/rateLimiter.js
-// Per-route rate limiters — fixes B-10 (old version had only one global limiter).
-// In-memory store is acceptable for single-instance Render free tier (TECH_DECISIONS §1.7).
 
 const rateLimit = require('express-rate-limit');
+const { Ratelimit } = require('@upstash/ratelimit');
+const { Redis } = require('@upstash/redis');
+const { logger } = require('./requestLogger');
 
-// Global — applied to all /api routes
-const globalLimiter = rateLimit({
-    windowMs: 15 * 60 * 1000,   // 15 minutes
-    max: 200,                    // 200 requests per IP per window
-    standardHeaders: true,       // Return rate limit info in RateLimit-* headers
-    legacyHeaders: false,        // Disable X-RateLimit-* headers
-    message: { message: 'Too many requests, try again later.' },
-});
+let useRedis = false;
+let upstashLimiters = null;
 
-// Auth — applied to /signup, /login, /resend-verification
-const authLimiter = rateLimit({
-    windowMs: 15 * 60 * 1000,
-    max: 10,                     // 10 attempts per IP per 15min
+if (process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN) {
+  const redis = new Redis({
+    url: process.env.UPSTASH_REDIS_REST_URL,
+    token: process.env.UPSTASH_REDIS_REST_TOKEN,
+  });
+  useRedis = true;
+  upstashLimiters = {
+    global: new Ratelimit({ redis, limiter: Ratelimit.slidingWindow(200, '15 m'), prefix: 'rl:global' }),
+    auth:   new Ratelimit({ redis, limiter: Ratelimit.slidingWindow(10,  '15 m'), prefix: 'rl:auth'   }),
+    strict: new Ratelimit({ redis, limiter: Ratelimit.slidingWindow(20,  '15 m'), prefix: 'rl:strict' }),
+  };
+  logger.info('Rate limiter: using Upstash Redis');
+} else {
+  logger.warn('Rate limiter: falling back to in-memory store');
+}
+
+const makeRedisMiddleware = (limiterKey, fallbackMax, windowMs) => {
+  const fallback = rateLimit({
+    windowMs,
+    max: fallbackMax,
     standardHeaders: true,
     legacyHeaders: false,
-    message: { message: 'Too many attempts, try again later.' },
-});
+    message: { success: false, message: 'Too many requests. Please try again later.' },
+  });
 
-// Strict — applied to /forgot-password
-const strictLimiter = rateLimit({
-    windowMs: 15 * 60 * 1000,
-    max: 20,
-    standardHeaders: true,
-    legacyHeaders: false,
-    message: { message: 'Too many attempts, try again later.' },
-});
+  if (!useRedis) return fallback;
+
+  return async (req, res, next) => {
+    try {
+      const { success, limit, remaining, reset } = await upstashLimiters[limiterKey].limit(req.ip);
+      res.setHeader('RateLimit-Limit', limit);
+      res.setHeader('RateLimit-Remaining', remaining);
+      res.setHeader('RateLimit-Reset', new Date(reset).toISOString());
+      if (!success) {
+        logger.warn({ message: 'Rate limit exceeded', ip: req.ip, url: req.originalUrl });
+        return res.status(429).json({ success: false, message: 'Too many requests. Please try again later.' });
+      }
+      next();
+    } catch (err) {
+      logger.error({ message: 'Upstash error', error: err.message });
+      next();
+    }
+  };
+};
+
+const globalLimiter = makeRedisMiddleware('global', 200, 15 * 60 * 1000);
+const authLimiter   = makeRedisMiddleware('auth',   10,  15 * 60 * 1000);
+const strictLimiter = makeRedisMiddleware('strict', 20,  15 * 60 * 1000);
 
 module.exports = { globalLimiter, authLimiter, strictLimiter };
