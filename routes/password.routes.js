@@ -5,13 +5,14 @@
 const express = require('express');
 const router = express.Router();
 const passwordController = require('../controllers/passwordController');
-const { strictLimiter } = require('../middleware/rateLimiter');
+const { strictLimiter, authLimiter } = require('../middleware/rateLimiter');
+const { schemas } = require('../middleware/validate');
 
-// POST /api/forgot-password — strictLimiter (5/15min — stricter than auth routes)
-router.post('/forgot-password', strictLimiter, passwordController.forgotPassword);
+// POST /api/forgot
+router.post('/forgot', authLimiter, schemas.forgotPassword, passwordController.forgotPassword);
 
-// POST /api/reset-password — no per-route limiter (global only)
-router.post('/reset-password', passwordController.resetPassword);
+// POST /api/reset
+router.post('/reset', strictLimiter, schemas.resetPassword, passwordController.resetPassword);
 
 // GET /api/reset-password — HTML page confirming token validity
 router.get('/reset-password', passwordController.renderResetPage);
@@ -19,7 +20,7 @@ router.get('/reset-password', passwordController.renderResetPage);
 // POST /api/send-otp — strictLimiter (prevents OTP spam)
 router.post('/send-otp', strictLimiter, passwordController.sendOtp);
 
-// POST /api/verify-otp — strictLimiter
-router.post('/verify-otp', strictLimiter, passwordController.verifyOtp);
+// POST /api/verify-otp
+router.post('/verify-otp', strictLimiter, schemas.verifyOtp, passwordController.verifyOtp);
 
 module.exports = router;
