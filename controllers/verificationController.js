@@ -60,17 +60,37 @@ const verifyEmail = async (req, res, next) => {
         await user.save();
 
         return res.send(`<!DOCTYPE html>
-<html>
-<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Email Verified</title>
-<style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:Arial,sans-serif;background:linear-gradient(135deg,#667eea,#764ba2);min-height:100vh;display:flex;align-items:center;justify-content:center}.card{background:white;border-radius:20px;padding:50px 40px;text-align:center;max-width:420px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,0.2)}.icon{font-size:64px;margin-bottom:20px}h1{color:#333;font-size:26px;margin-bottom:12px}p{color:#666;font-size:15px;line-height:1.6;margin-bottom:30px}.btn{background:linear-gradient(135deg,#667eea,#764ba2);color:white;text-decoration:none;padding:16px 40px;border-radius:10px;font-size:16px;font-weight:600;display:inline-block}</style>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Email Verified</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f5f5f5; min-height: 100vh; display: flex; align-items: center; justify-content: center; }
+    .card { background: #ffffff; border-radius: 8px; border: 1px solid #e8e8e8; max-width: 480px; width: 90%; overflow: hidden; }
+    .header { background: #111111; padding: 28px 40px; }
+    .header span { color: #ffffff; font-size: 20px; font-weight: 700; letter-spacing: 1px; }
+    .body { padding: 40px; }
+    h1 { font-size: 22px; font-weight: 700; color: #111111; margin-bottom: 12px; }
+    p { font-size: 15px; color: #555555; line-height: 1.7; margin-bottom: 32px; }
+    .btn { display: inline-block; background: #111111; color: #ffffff; text-decoration: none; padding: 14px 32px; border-radius: 6px; font-size: 15px; font-weight: 600; letter-spacing: 0.3px; }
+    .footer { padding: 24px 40px; border-top: 1px solid #f0f0f0; }
+    .footer p { font-size: 12px; color: #aaaaaa; line-height: 1.6; margin: 0; }
+  </style>
 </head>
 <body>
-<div class="card">
-  <div class="icon">✅</div>
-  <h1>Email Verified!</h1>
-  <p>Your email has been successfully verified. Tap below to return to the app.</p>
-  <a href="myapp://dashboard" class="btn">Open App →</a>
-</div>
+  <div class="card">
+    <div class="header"><span>AuthApp</span></div>
+    <div class="body">
+      <h1>Email verified</h1>
+      <p>Your email has been successfully verified. Tap below to return to the app and log in.</p>
+      <a href="myapp://dashboard" class="btn">Open App →</a>
+    </div>
+    <div class="footer">
+      <p>If you didn't create an account, you can safely ignore this.</p>
+    </div>
+  </div>
 </body>
 </html>`);
     } catch (error) {
