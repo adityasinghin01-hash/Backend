@@ -9,8 +9,10 @@ const mongoSanitize = require('express-mongo-sanitize');
 const config = require('./config/config');
 const { globalLimiter } = require('./middleware/rateLimiter');
 const errorHandler = require('./middleware/errorHandler');
+const { httpLogger } = require('./middleware/requestLogger');
 
 const app = express();
+app.set('trust proxy', 1);
 
 // ── 1. Security Headers ───────────────────────────────────
 // TECH_DECISIONS §1.8: Explicit CSP config, not just defaults
@@ -42,16 +44,7 @@ app.use(mongoSanitize());
 
 // ── 5. Request Logger ────────────────────────────────────
 // Fixes B-27: structured request logging on every request
-app.use((req, res, next) => {
-    const start = Date.now();
-    res.on('finish', () => {
-        const ms = Date.now() - start;
-        console.log(
-            `[${new Date().toISOString()}] ${req.method} ${req.originalUrl} ${res.statusCode} ${ms}ms`
-        );
-    });
-    next();
-});
+app.use(httpLogger);
 
 // ── 6. Global Rate Limiter ───────────────────────────────
 app.use('/api', globalLimiter);
