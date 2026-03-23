@@ -49,7 +49,7 @@ const schemas = {
   signup: validate([nameField(), emailField(), passwordField(), recaptchaField()]),
   login: validate([emailField(), passwordField()]),
   forgotPassword: validate([emailField()]),
-  verifyOtp: validate([emailField(), otpField(), recaptchaField()]),
+  verifyOtp: validate([emailField(), otpField()]),
   resetPassword: validate([
     passwordField('newPassword'),
     body('newPassword').custom((value, { req }) => {
