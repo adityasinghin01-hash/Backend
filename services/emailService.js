@@ -80,7 +80,7 @@ async function sendEmail({ to, subject, html }) {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
-      sender: { name: 'AuthApp', email: 'noreply@authapp.dev' },
+      sender: { name: 'AuthApp', email: 'your_verified_brevo_email@gmail.com' },
       to: [{ email: to }],
       subject,
       htmlContent: html,
