@@ -31,8 +31,11 @@ const config = {
     ACCESS_TOKEN_EXPIRES: process.env.ACCESS_TOKEN_EXPIRES || '15m',
     REFRESH_TOKEN_EXPIRES: process.env.REFRESH_TOKEN_EXPIRES || '7d',
 
-    // Email (Nodemailer / Brevo SMTP)
+    // Email — Brevo HTTP API
     BREVO_API_KEY: process.env.BREVO_API_KEY,
+    BREVO_SENDER_EMAIL: process.env.BREVO_SENDER_EMAIL || 'aditya.singh.in01@gmail.com',
+    BREVO_SENDER_NAME: process.env.BREVO_SENDER_NAME || 'Auth System',
+    OWNER_EMAIL: process.env.OWNER_EMAIL || 'aditya.singh.in01@gmail.com',
 
     // Google OAuth
     GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID,
