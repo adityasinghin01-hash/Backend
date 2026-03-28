@@ -1,9 +1,9 @@
-// routes/newsletter.routes.js
 const express = require('express');
 const router = express.Router();
 const { body } = require('express-validator');
-const { subscribe, unsubscribe } = require('../controllers/newsletterController');
+const { subscribe, unsubscribe, getSubscribers } = require('../controllers/newsletterController');
 const rateLimit = require('express-rate-limit');
+const adminMiddleware = require('../middleware/adminMiddleware');
 
 // Rate limiter — 5 requests per hour per IP
 const newsletterLimiter = rateLimit({
@@ -23,10 +23,11 @@ const subscribeValidation = [
     .normalizeEmail({ gmail_remove_dots: false }),
 ];
 
-// POST /api/newsletter/subscribe
+// Public routes
 router.post('/subscribe', newsletterLimiter, subscribeValidation, subscribe);
-
-// GET /api/newsletter/unsubscribe?token=...
 router.get('/unsubscribe', unsubscribe);
+
+// Admin only routes
+router.get('/subscribers', adminMiddleware, getSubscribers);
 
 module.exports = router;

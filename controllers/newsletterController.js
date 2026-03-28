@@ -102,4 +102,15 @@ const unsubscribe = async (req, res) => {
   }
 };
 
-module.exports = { subscribe, unsubscribe };
+// GET /api/newsletter/subscribers — admin only
+const getSubscribers = async (req, res) => {
+  try {
+    const subscribers = await Subscriber.find({ isActive: true }).sort({ createdAt: -1 });
+    return res.status(200).json({ count: subscribers.length, subscribers });
+  } catch (err) {
+    console.error('Get subscribers error:', err);
+    return res.status(500).json({ message: 'Something went wrong.' });
+  }
+};
+
+module.exports = { subscribe, unsubscribe, getSubscribers };

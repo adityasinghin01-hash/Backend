@@ -3,6 +3,7 @@ const router = express.Router();
 const { body } = require('express-validator');
 const { joinWaitlist, getWaitlist, exportWaitlist } = require('../controllers/waitlistController');
 const rateLimit = require('express-rate-limit');
+const adminMiddleware = require('../middleware/adminMiddleware');
 
 // Rate limiter — 5 requests per hour per IP
 const waitlistLimiter = rateLimit({
@@ -26,13 +27,11 @@ const joinValidation = [
     .normalizeEmail({ gmail_remove_dots: false }),
 ];
 
-// POST /api/waitlist/join
+// Public routes
 router.post('/join', waitlistLimiter, joinValidation, joinWaitlist);
 
-// GET /api/waitlist — admin only (protected in Phase 5)
-router.get('/', getWaitlist);
-
-// GET /api/waitlist/export — admin only (protected in Phase 5)
-router.get('/export', exportWaitlist);
+// Admin only routes
+router.get('/', adminMiddleware, getWaitlist);
+router.get('/export', adminMiddleware, exportWaitlist);
 
 module.exports = router;

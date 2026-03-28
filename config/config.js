@@ -36,6 +36,7 @@ const config = {
     BREVO_SENDER_EMAIL: process.env.BREVO_SENDER_EMAIL || 'aditya.singh.in01@gmail.com',
     BREVO_SENDER_NAME: process.env.BREVO_SENDER_NAME || 'Auth System',
     OWNER_EMAIL: process.env.OWNER_EMAIL || 'aditya.singh.in01@gmail.com',
+    ADMIN_EMAIL: process.env.ADMIN_EMAIL || 'aditya.singh.in01@gmail.com',
 
     // Google OAuth
     GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID,

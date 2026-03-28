@@ -40,6 +40,12 @@ const userSchema = new mongoose.Schema(
             type: String, // Google profile picture URL
         },
 
+        // ── Role ─────────────────────────────────────────────
+        isAdmin: {
+            type: Boolean,
+            default: false,
+        },
+
         // ── Verification ──────────────────────────────────────
         isVerified: {
             type: Boolean,
