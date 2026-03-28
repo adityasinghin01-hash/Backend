@@ -59,6 +59,7 @@ app.use('/api/password', require('./routes/password.routes'));
 app.use('/api', require('./routes/user.routes'));
 app.use('/api/contact', require('./routes/contact.routes'));
 app.use('/api/newsletter', require('./routes/newsletter.routes'));
+app.use('/api/waitlist', require('./routes/waitlist.routes'));
 
 // ── 8. Global Error Handler (MUST be last) ───────────────
 app.use(errorHandler);
