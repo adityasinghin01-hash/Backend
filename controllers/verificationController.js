@@ -59,40 +59,60 @@ const verifyEmail = async (req, res, next) => {
 
         await user.save();
 
-        return res.send(`<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Email Verified</title>
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f5f5f5; min-height: 100vh; display: flex; align-items: center; justify-content: center; }
-    .card { background: #ffffff; border-radius: 8px; border: 1px solid #e8e8e8; max-width: 480px; width: 90%; overflow: hidden; }
-    .header { background: #111111; padding: 28px 40px; }
-    .header span { color: #ffffff; font-size: 20px; font-weight: 700; letter-spacing: 1px; }
-    .body { padding: 40px; }
-    h1 { font-size: 22px; font-weight: 700; color: #111111; margin-bottom: 12px; }
-    p { font-size: 15px; color: #555555; line-height: 1.7; margin-bottom: 32px; }
-    .btn { display: inline-block; background: #111111; color: #ffffff; text-decoration: none; padding: 14px 32px; border-radius: 6px; font-size: 15px; font-weight: 600; letter-spacing: 0.3px; }
-    .footer { padding: 24px 40px; border-top: 1px solid #f0f0f0; }
-    .footer p { font-size: 12px; color: #aaaaaa; line-height: 1.6; margin: 0; }
-  </style>
-</head>
-<body>
-  <div class="card">
-    <div class="header"><span>AuthApp</span></div>
-    <div class="body">
-      <h1>Email verified</h1>
-      <p>Your email has been successfully verified. Tap below to return to the app and log in.</p>
-      <a href="myapp://dashboard" class="btn">Open App →</a>
+        const source = req.query.source || 'app';
+        const clientUrl = process.env.CLIENT_URL || 'https://backend-z6cy.onrender.com';
+
+        if (source === 'web') {
+          return res.send(`<!DOCTYPE html>
+<html>
+  <head>
+    <title>Email Verified — Spinx</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      body { background: #0a0a0f; color: #f1f5f9; font-family: Inter, sans-serif; display: flex; align-items: center; justify-content: center; min-height: 100vh; }
+      .card { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 24px; padding: 48px 32px; text-align: center; max-width: 440px; width: 90%; }
+      h1 { font-size: 28px; font-weight: 800; margin-bottom: 12px; }
+      p { color: #475569; margin-bottom: 28px; line-height: 1.6; }
+      a { display: inline-block; padding: 14px 32px; border-radius: 999px; background: linear-gradient(135deg, #7c3aed, #06b6d4); color: #fff; font-weight: 700; text-decoration: none; font-size: 15px; }
+      .icon { font-size: 64px; margin-bottom: 20px; }
+    </style>
+  </head>
+  <body>
+    <div class="card">
+      <div class="icon">✅</div>
+      <h1>Email Verified!</h1>
+      <p>Your Spinx account is ready. You can now sign in and explore the cosmos.</p>
+      <a href="${clientUrl}/login">Go to Login</a>
     </div>
-    <div class="footer">
-      <p>If you didn't create an account, you can safely ignore this.</p>
-    </div>
-  </div>
-</body>
+  </body>
 </html>`);
+        } else {
+          return res.send(`<!DOCTYPE html>
+<html>
+  <head>
+    <title>Email Verified — Spinx</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      body { background: #0a0a0f; color: #f1f5f9; font-family: Inter, sans-serif; display: flex; align-items: center; justify-content: center; min-height: 100vh; }
+      .card { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 24px; padding: 48px 32px; text-align: center; max-width: 440px; width: 90%; }
+      h1 { font-size: 28px; font-weight: 800; margin-bottom: 12px; }
+      p { color: #475569; margin-bottom: 28px; line-height: 1.6; }
+      a { display: inline-block; padding: 14px 32px; border-radius: 999px; background: linear-gradient(135deg, #7c3aed, #06b6d4); color: #fff; font-weight: 700; text-decoration: none; font-size: 15px; }
+      .icon { font-size: 64px; margin-bottom: 20px; }
+    </style>
+  </head>
+  <body>
+    <div class="card">
+      <div class="icon">✅</div>
+      <h1>Email Verified!</h1>
+      <p>Your account is ready. Return to the app to continue.</p>
+      <a href="myapp://dashboard">Open App</a>
+    </div>
+  </body>
+</html>`);
+        }
     } catch (error) {
         next(error);
     }

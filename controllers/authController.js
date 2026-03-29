@@ -22,6 +22,7 @@ const signup = async (req, res, next) => {
     try {
         const email = typeof req.body.email === 'string' ? req.body.email.toLowerCase().trim() : null;
         const password = req.body.password; // NO .trim() — fixes B-11
+        const source = req.body.source === 'web' ? 'web' : 'app';
 
         // Validate email
         if (!email || !validator.isEmail(email)) {
@@ -62,7 +63,7 @@ const signup = async (req, res, next) => {
             setImmediate(async () => {
                 try {
                     console.log('📧 [Signup Re-send] Queuing verification email for:', email);
-                    await sendVerificationEmail(email, rawToken);
+                    await sendVerificationEmail(email, rawToken, source);
                     console.log('✅ [Signup Re-send] Verification email sent for:', email);
                 } catch (err) {
                     console.error('❌ [Signup Re-send] Email send failed:', err.message);
@@ -101,7 +102,7 @@ const signup = async (req, res, next) => {
         setImmediate(async () => {
             try {
                 console.log('📧 [Signup New] Queuing verification email for:', email);
-                await sendVerificationEmail(email, rawToken);
+                await sendVerificationEmail(email, rawToken, source);
                 console.log('✅ [Signup New] Verification email sent for:', email);
             } catch (err) {
                 console.error('❌ [Signup New] Email send failed:', err.message);
