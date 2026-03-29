@@ -72,4 +72,24 @@ const sendPasswordResetEmail = async (email, rawToken) => {
   });
 };
 
-module.exports = { sendEmail, sendVerificationEmail, sendPasswordResetEmail };
+// ── OTP Email ────────────────────────────────────────────
+const sendOtpEmail = async (email, otp) => {
+  await sendEmail({
+    to: email,
+    subject: 'Your Password Reset Code',
+    text: `Your password reset code is: ${otp}\n\nThis code expires in 15 minutes.\n\nIf you did not request this, ignore this email.`,
+    html: `
+      <div style="max-width:600px;margin:0 auto;font-family:Arial,sans-serif;padding:40px 20px;background:#fff;">
+        <h2 style="color:#111;font-size:22px;margin-bottom:8px;">Password Reset Code</h2>
+        <p style="color:#444;font-size:15px;line-height:1.6;">Use the code below to reset your password. It expires in <strong>15 minutes</strong>.</p>
+        <div style="text-align:center;margin:32px 0;">
+          <span style="background:#f4f4f5;display:inline-block;padding:16px 40px;border-radius:8px;font-size:32px;font-weight:700;letter-spacing:8px;color:#111;">${otp}</span>
+        </div>
+        <hr style="border:none;border-top:1px solid #eee;margin:32px 0;"/>
+        <p style="color:#999;font-size:12px;">If you did not request this code, ignore this email.</p>
+      </div>
+    `,
+  });
+};
+
+module.exports = { sendEmail, sendVerificationEmail, sendPasswordResetEmail, sendOtpEmail };
