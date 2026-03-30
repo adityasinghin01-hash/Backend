@@ -40,6 +40,7 @@ const config = {
 
     // Google OAuth
     GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID,
+    GOOGLE_WEB_CLIENT_ID: process.env.GOOGLE_WEB_CLIENT_ID,
 
     // reCAPTCHA
     RECAPTCHA_SECRET: process.env.RECAPTCHA_SECRET,

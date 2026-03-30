@@ -216,7 +216,7 @@ const googleLogin = async (req, res, next) => {
 
         const ticket = await googleClient.verifyIdToken({
             idToken,
-            audience: config.GOOGLE_CLIENT_ID,
+            audience: [config.GOOGLE_CLIENT_ID, config.GOOGLE_WEB_CLIENT_ID].filter(Boolean),
         });
 
         const payload = ticket.getPayload();
