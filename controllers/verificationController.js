@@ -82,8 +82,8 @@ const verifyEmail = async (req, res, next) => {
     <div class="card">
       <div class="icon">✅</div>
       <h1>Email Verified!</h1>
-      <p>Your Spinx account is ready. You can now sign in and explore the cosmos.</p>
-      <a href="${clientUrl}/login">Go to Login</a>
+      <p>Your Spinx account is verified! You can now explore the cosmos.</p>
+      <a href="${clientUrl}/dashboard">Go to Dashboard →</a>
     </div>
   </body>
 </html>`);
