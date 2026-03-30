@@ -9,6 +9,7 @@ const User = require('../models/User');
 const config = require('../config/config');
 const hashToken = require('../utils/hashToken');
 const { sendVerificationEmail } = require('../services/emailService');
+const { generateAccessToken, generateRefreshToken } = require('../services/tokenService');
 
 const VERIFICATION_TOKEN_EXPIRY = 24 * 60 * 60 * 1000; // 24 hours
 
@@ -63,30 +64,17 @@ const verifyEmail = async (req, res, next) => {
         const clientUrl = process.env.CLIENT_URL || 'https://backend-z6cy.onrender.com';
 
         if (source === 'web') {
-          return res.send(`<!DOCTYPE html>
-<html>
-  <head>
-    <title>Email Verified — Spinx</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <style>
-      * { margin: 0; padding: 0; box-sizing: border-box; }
-      body { background: #0a0a0f; color: #f1f5f9; font-family: Inter, sans-serif; display: flex; align-items: center; justify-content: center; min-height: 100vh; }
-      .card { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 24px; padding: 48px 32px; text-align: center; max-width: 440px; width: 90%; }
-      h1 { font-size: 28px; font-weight: 800; margin-bottom: 12px; }
-      p { color: #475569; margin-bottom: 28px; line-height: 1.6; }
-      a { display: inline-block; padding: 14px 32px; border-radius: 999px; background: linear-gradient(135deg, #7c3aed, #06b6d4); color: #fff; font-weight: 700; text-decoration: none; font-size: 15px; }
-      .icon { font-size: 64px; margin-bottom: 20px; }
-    </style>
-  </head>
-  <body>
-    <div class="card">
-      <div class="icon">✅</div>
-      <h1>Email Verified!</h1>
-      <p>Your Spinx account is verified! You can now explore the cosmos.</p>
-      <a href="${clientUrl}/dashboard">Go to Dashboard →</a>
-    </div>
-  </body>
-</html>`);
+          const accessToken = generateAccessToken(user);
+          const refreshToken = generateRefreshToken(user, false);
+          
+          user.refreshTokens.push({
+            tokenHash: hashToken(refreshToken),
+            createdAt: new Date(),
+            deviceInfo: 'email-verification',
+          });
+          
+          await user.save();
+          return res.redirect(`${clientUrl}/auth/callback?accessToken=${accessToken}&refreshToken=${encodeURIComponent(refreshToken)}`);
         } else {
           return res.send(`<!DOCTYPE html>
 <html>
