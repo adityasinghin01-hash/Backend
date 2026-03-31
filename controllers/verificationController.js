@@ -76,14 +76,24 @@ const verifyEmail = async (req, res, next) => {
       h1 { font-size: 28px; font-weight: 800; margin-bottom: 12px; }
       p { color: #475569; margin-bottom: 0; line-height: 1.6; }
       .icon { font-size: 64px; margin-bottom: 20px; }
+      #closing { color: #06b6d4; font-size: 13px; margin-top: 16px; }
     </style>
   </head>
   <body>
     <div class="card">
       <div class="icon">✅</div>
       <h1>Email Verified!</h1>
-      <p>Your account is verified. You can close this tab — your original tab will redirect you automatically.</p>
+      <p id="msg">Closing this tab and returning you to Spinx...</p>
     </div>
+    <script>
+      setTimeout(function() {
+        window.close();
+        // If window.close() is blocked by the browser, show fallback message
+        setTimeout(function() {
+          document.getElementById('msg').textContent = 'Your account is verified! You can close this tab — your original tab will redirect you automatically.';
+        }, 500);
+      }, 1200);
+    </script>
   </body>
 </html>`);
         } else {
