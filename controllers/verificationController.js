@@ -64,17 +64,28 @@ const verifyEmail = async (req, res, next) => {
         const clientUrl = process.env.CLIENT_URL || 'https://backend-z6cy.onrender.com';
 
         if (source === 'web') {
-          const accessToken = generateAccessToken(user);
-          const refreshToken = generateRefreshToken(user, false);
-          
-          user.refreshTokens.push({
-            tokenHash: hashToken(refreshToken),
-            createdAt: new Date(),
-            deviceInfo: 'email-verification',
-          });
-          
-          await user.save();
-          return res.redirect(`${clientUrl}/auth/callback?accessToken=${accessToken}&refreshToken=${encodeURIComponent(refreshToken)}`);
+          return res.send(`<!DOCTYPE html>
+<html>
+  <head>
+    <title>Email Verified — Spinx</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      body { background: #0a0a0f; color: #f1f5f9; font-family: Inter, sans-serif; display: flex; align-items: center; justify-content: center; min-height: 100vh; }
+      .card { background: rgba(255,255,255,0.05); border: 1px solid rgba(6,182,212,0.3); border-radius: 24px; padding: 48px 32px; text-align: center; max-width: 440px; width: 90%; }
+      h1 { font-size: 28px; font-weight: 800; margin-bottom: 12px; }
+      p { color: #475569; margin-bottom: 0; line-height: 1.6; }
+      .icon { font-size: 64px; margin-bottom: 20px; }
+    </style>
+  </head>
+  <body>
+    <div class="card">
+      <div class="icon">✅</div>
+      <h1>Email Verified!</h1>
+      <p>Your account is verified. You can close this tab — your original tab will redirect you automatically.</p>
+    </div>
+  </body>
+</html>`);
         } else {
           return res.send(`<!DOCTYPE html>
 <html>
