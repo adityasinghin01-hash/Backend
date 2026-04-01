@@ -3,7 +3,7 @@
 const config = require('../config/config');
 
 // ── Core Send Function ───────────────────────────────────
-const sendEmail = async ({ to, subject, html, text }) => {
+const sendEmail = async ({ to, toName, subject, html, text }) => {
   const response = await fetch('https://api.brevo.com/v3/smtp/email', {
     method: 'POST',
     headers: {
@@ -15,7 +15,7 @@ const sendEmail = async ({ to, subject, html, text }) => {
         name: config.BREVO_SENDER_NAME,
         email: config.BREVO_SENDER_EMAIL,
       },
-      to: [{ email: to }],
+      to: [{ email: to, name: toName || '' }],
       subject,
       htmlContent: html,
       textContent: text,
