@@ -15,7 +15,7 @@ const sendEmail = async ({ to, toName, subject, html, text }) => {
         name: config.BREVO_SENDER_NAME,
         email: config.BREVO_SENDER_EMAIL,
       },
-      to: [{ email: to, name: toName || '' }],
+      to: [{ email: to, name: toName || 'User' }],
       subject,
       htmlContent: html,
       textContent: text,
