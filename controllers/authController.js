@@ -304,20 +304,31 @@ const refreshToken = async (req, res, next) => {
             return res.status(403).json({ message: 'Token reuse detected — all sessions revoked' });
         }
 
-        // Remove the used token
-        user.refreshTokens.splice(tokenIndex, 1);
-
         // Generate new pair
         const newAccessToken = generateAccessToken(user);
         const newRefreshToken = generateRefreshToken(user, decoded.rememberMe || false);
 
-        user.refreshTokens.push({
-            tokenHash: hashToken(newRefreshToken),
-            createdAt: new Date(),
-            deviceInfo: req.headers['user-agent'] || 'unknown',
-        });
+        // Remove old token and add new one atomically
+        await User.findByIdAndUpdate(
+          user._id,
+          {
+            $pull: { refreshTokens: { tokenHash: hashedIncoming } },
+          },
+          { new: true }
+        );
 
-        await user.save();
+        await User.findByIdAndUpdate(
+          user._id,
+          {
+            $push: {
+              refreshTokens: {
+                tokenHash: hashToken(newRefreshToken),
+                createdAt: new Date(),
+                deviceInfo: req.headers['user-agent'] || 'unknown',
+              },
+            },
+          }
+        );
 
         return res.status(200).json({
             success: true,
